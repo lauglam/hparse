@@ -19,7 +19,7 @@ attr: !Single href
 description: href attribute action
 error:
   kind: AttributeNotFound
-  message: '属性: `href`未找到'
+  message: 'attribute: `href`not found'
 ```
 
 or
@@ -31,7 +31,7 @@ attr: !AnyOf
 description: href attribute action
 error:
   kind: AttributeNotFound
-  message: '属性: `href`未找到'
+  message: 'attribute: `href`not found'
 ```
 
 ### Example: create [ChooseAction](#action--chooseaction)
