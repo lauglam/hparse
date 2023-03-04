@@ -3,18 +3,18 @@ use visdom::Vis;
 use crate::actions::{ActionError, ActionErrKind, ActionErrRes, ActionResult, Variable};
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
-pub struct AttrAction {
+pub struct AttributeAction {
     attr: Variable<String>,
     description: Option<String>,
     error: Option<ActionError>,
 }
 
-impl AttrAction {
+impl AttributeAction {
     pub fn new(
         attr: Variable<String>,
         description: Option<String>,
         error: Option<String>,
-    ) -> AttrAction {
+    ) -> AttributeAction {
         let error = if let Some(msg) = error {
             Some(ActionError::new(
                 ActionErrKind::AttributeNotFound,
@@ -24,7 +24,7 @@ impl AttrAction {
             None
         };
 
-        AttrAction { attr, description, error }
+        AttributeAction { attr, description, error }
     }
 
     pub fn act(&self, s: &str) -> ActionResult<Option<String>> {

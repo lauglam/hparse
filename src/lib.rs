@@ -43,7 +43,11 @@ impl ParseFile {
         }
     }
 
-    pub fn execute(&self, s: &str, parent: Option<String>) {
+    pub fn json(&self, s: &str, parent: Option<String>) {
 
+    }
+
+    pub fn yaml(&self, s: &str, parent: Option<String>) {
+        unimplemented!()
     }
 }

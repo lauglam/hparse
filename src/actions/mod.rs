@@ -1,17 +1,17 @@
-mod reg_action;
+mod regex_action;
 mod str_action;
 mod choose_action;
 mod func_action;
-mod attr_action;
+mod attribute_action;
 mod select_action;
 mod any_of_action;
 
 pub use {
     any_of_action::AnyOfAction,
-    attr_action::AttrAction,
+    attribute_action::AttributeAction,
     choose_action::ChooseAction,
     func_action::FuncAction,
-    reg_action::RegAction,
+    regex_action::RegexAction,
     select_action::SelectAction,
     str_action::StrAction,
 };
@@ -22,10 +22,10 @@ type ActionResult<T> = Result<T, ActionError>;
 #[derive(Debug, PartialEq, Clone, serde::Serialize, serde::Deserialize)]
 pub enum Action {
     AnyOf(AnyOfAction),
-    Attribute(AttrAction),
+    Attribute(AttributeAction),
     Choose(ChooseAction),
     Func(FuncAction),
-    Regex(RegAction),
+    Regex(RegexAction),
     Select(SelectAction),
     Str(StrAction),
 }
@@ -33,12 +33,12 @@ pub enum Action {
 #[derive(Debug, PartialEq, Clone, serde::Serialize, serde::Deserialize)]
 pub enum ActionErrKind {
     AnyActionAllActionFail,
-    ElementNotFound,
     AttributeNotFound,
-    RegexNotMatch,
     PatternNotCovered,
-    StrEmpty,
     RunFunctionFail,
+    RegexNotMatch,
+    ElementNotFound,
+    StrEmpty,
 }
 
 #[derive(Debug, PartialEq, Clone, serde::Serialize, serde::Deserialize)]
