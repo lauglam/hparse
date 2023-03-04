@@ -3,20 +3,20 @@ use regex::Regex;
 use crate::actions::{ActionError, ActionErrKind, ActionErrRes, ActionResult, Variable};
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
-pub struct RegAction {
+pub struct RegexAction {
     regex: Variable<String>,
     group: usize,
     description: Option<String>,
     error: Option<ActionError>,
 }
 
-impl RegAction {
+impl RegexAction {
     pub fn new(
         regex: Variable<String>,
         group: usize,
         description: Option<String>,
         error: Option<String>,
-    ) -> RegAction {
+    ) -> RegexAction {
         let error = if let Some(msg) = error {
             Some(ActionError::new(
                 ActionErrKind::RegexNotMatch,
@@ -26,7 +26,7 @@ impl RegAction {
             None
         };
 
-        RegAction { regex, group, description, error }
+        RegexAction { regex, group, description, error }
     }
 
     pub fn act(&self, s: &str) -> ActionResult<Option<String>> {
