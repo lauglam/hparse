@@ -31,7 +31,7 @@ pub enum Action {
 }
 
 #[derive(Debug, PartialEq, Clone, serde::Serialize, serde::Deserialize)]
-pub enum ActionErrKind {
+pub enum ActionErrorKind {
     AnyActionAllActionFail,
     AttributeNotFound,
     PatternNotCovered,
@@ -41,38 +41,34 @@ pub enum ActionErrKind {
     StrEmpty,
 }
 
+impl std::fmt::Display for ActionErrorKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self)
+    }
+}
+
 #[derive(Debug, PartialEq, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ActionError {
-    kind: ActionErrKind,
-    message: String,
+    kind: ActionErrorKind,
+    message: Option<String>,
 }
 
 impl ActionError {
-    pub fn new(kind: ActionErrKind, msg: String) -> ActionError {
+    pub fn new(kind: ActionErrorKind, msg: Option<String>) -> ActionError {
         ActionError { kind, message: msg }
     }
 }
 
 impl std::fmt::Display for ActionError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.message)
+        match self.message {
+            None => write!(f, "{}", self.kind),
+            Some(ref m) => write!(f, "{}: {}", self.kind, m),
+        }
     }
 }
 
 impl std::error::Error for ActionError {}
-
-pub trait ActionErrRes<T> {
-    fn res(&self) -> ActionResult<Option<T>>;
-}
-
-impl<T> ActionErrRes<T> for Option<ActionError> {
-    fn res(&self) -> ActionResult<Option<T>> {
-        match self {
-            Some(e) => Err(e.clone()),
-            None => Ok(None)
-        }
-    }
-}
 
 #[derive(Debug, PartialEq, Clone, serde::Serialize, serde::Deserialize)]
 pub enum Variable<T> {

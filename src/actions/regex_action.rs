@@ -1,13 +1,13 @@
 use serde::{Deserialize, Serialize};
 use regex::Regex;
-use crate::actions::{ActionError, ActionErrKind, ActionErrRes, ActionResult, Variable};
+use crate::actions::{ActionError, ActionErrorKind, ActionResult, Variable};
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct RegexAction {
     regex: Variable<String>,
     group: usize,
     description: Option<String>,
-    error: Option<ActionError>,
+    error: ActionError,
 }
 
 impl RegexAction {
@@ -17,27 +17,23 @@ impl RegexAction {
         description: Option<String>,
         error: Option<String>,
     ) -> RegexAction {
-        let error = if let Some(msg) = error {
-            Some(ActionError::new(
-                ActionErrKind::RegexNotMatch,
-                msg,
-            ))
-        } else {
-            None
-        };
+        let error = ActionError::new(
+            ActionErrorKind::AnyActionAllActionFail,
+            error,
+        );
 
         RegexAction { regex, group, description, error }
     }
 
-    pub fn act(&self, s: &str) -> ActionResult<Option<String>> {
+    pub fn act(&self, s: &str) -> ActionResult<String> {
         self.regex.using(
             &mut |reg| {
                 let r = Regex::new(reg).unwrap();
 
                 if let Some(cap) = r.captures(s) {
-                    Ok(Some(String::from(&cap[self.group])))
+                    Ok(String::from(&cap[self.group]))
                 } else {
-                    self.error.res()
+                    Err(self.error.clone())
                 }
             },
             &mut |a| {
@@ -45,10 +41,10 @@ impl RegexAction {
                     let r = Regex::new(reg).unwrap();
 
                     if let Some(cap) = r.captures(s) {
-                        return Ok(Some(String::from(&cap[self.group])));
+                        return Ok(String::from(&cap[self.group]));
                     }
                 }
-                self.error.res()
+                Err(self.error.clone())
             },
         )
     }

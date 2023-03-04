@@ -1,11 +1,11 @@
 use std::ops::Deref;
-use crate::actions::{Action, ActionErrKind, ActionError, ActionErrRes, ActionResult};
+use crate::actions::{Action, ActionErrorKind, ActionError, ActionResult};
 
 #[derive(Debug, PartialEq, Clone, serde::Serialize, serde::Deserialize)]
 pub struct AnyOfAction {
     actions: Box<Vec<Action>>,
     description: Option<String>,
-    error: Option<ActionError>,
+    error: ActionError,
 }
 
 impl AnyOfAction {
@@ -14,19 +14,15 @@ impl AnyOfAction {
         description: Option<String>,
         error: Option<String>,
     ) -> AnyOfAction {
-        let error = if let Some(msg) = error {
-            Some(ActionError::new(
-                ActionErrKind::AnyActionAllActionFail,
-                msg,
-            ))
-        } else {
-            None
-        };
+        let error = ActionError::new(
+            ActionErrorKind::AnyActionAllActionFail,
+            error,
+        );
 
         AnyOfAction { actions: Box::new(actions), description, error }
     }
 
-    pub fn act(&self, s: &str) -> ActionResult<Option<String>> {
+    pub fn act(&self, s: &str) -> ActionResult<String> {
         for action in self.actions.deref() {
             let res = match action {
                 Action::AnyOf(a) => a.act(s),
@@ -39,14 +35,11 @@ impl AnyOfAction {
             };
 
             if let Ok(s) = res {
-                if let Some(s) = s {
-                    // the child action's return can be `None` or `Err`
-                    // just return `Some` res
-                    return Ok(Some(s));
-                }
+                // ignore `actions` item error
+                return Ok(s);
             }
         }
 
-        self.error.res()
+        Err(self.error.clone())
     }
 }
