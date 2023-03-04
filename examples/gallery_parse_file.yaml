@@ -1,13 +1,13 @@
 ---
 kind: Object
 name: gallery
-description: 画廊对象解析器
+description: 画廊对象解析配置文件
 properties:
   - kind: Object
     name: token
     description: 画廊的唯一身份信息
     actions:
-      - !Regex
+      - !Select
         regex: !AnyOf
           - ".glname a"
           - ".gl2e a"

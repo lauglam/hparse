@@ -1,182 +1,184 @@
 {
-  "kind": "object",
+  "kind": "Object",
   "name": "gallery",
-  "description": "画廊对象解析器",
+  "description": "画廊对象解析配置文件",
   "properties": [
     {
-      "kind": "object",
+      "kind": "Object",
       "name": "token",
       "description": "画廊的唯一身份信息",
       "actions": [
         {
-          "anyOf": [".glname a", ".gl2e a"],
+          "regex": [
+            ".glname a",
+            ".gl2e a"
+          ],
           "description": "1. Minimal|MinimalPlus|Compact|Thumbnail: `.glname a`\n2. Extended: `.gl2e a`\n",
           "error": {
             "kind": "ElementNotFound",
-            "date": "2023-03-02",
             "message": "元素: `.glname a`或`.gl2e a`未找到"
           }
         },
         {
-          "value": "href",
+          "attr": "href",
           "error": {
             "kind": "AttributeNotFound",
-            "date": "2023-03-02",
             "message": "属性: `href`未找到"
           }
         }
       ],
-      "properties": {
-        "gid": {
-          "kind": "number",
+      "properties": [
+        {
+          "kind": "Number",
           "name": "gid",
           "description": "身份信息中的id",
-          "actions": {
-            "regex": {
-              "value": "https?://(?:exhentai.org|e-hentai.org|lofi.e-hentai.org)/(?:g|mpv)/(\\d+)/([0-9a-f]{10})",
+          "actions": [
+            {
+              "regex": "https?://(?:exhentai.org|e-hentai.org|lofi.e-hentai.org)/(?:g|mpv)/(\\d+)/([0-9a-f]{10})",
               "group": 1,
               "error": {
-                "kind": "RegexMatchFail",
-                "date": "2023-03-02",
+                "kind": "RegexNotMatch",
                 "message": "字段: `gid`在正则表达式匹配时出错"
               }
             }
-          }
+          ]
         },
-        "token": {
+        {
           "kind": "string",
           "name": "token",
           "description": "身份信息中的token",
-          "actions": {
-            "regex": {
-              "value": "https?://(?:exhentai.org|e-hentai.org|lofi.e-hentai.org)/(?:g|mpv)/(\\d+)/([0-9a-f]{10})",
+          "actions": [
+            {
+              "regex": "https?://(?:exhentai.org|e-hentai.org|lofi.e-hentai.org)/(?:g|mpv)/(\\d+)/([0-9a-f]{10})",
               "group": 2,
               "error": {
-                "kind": "RegexMatchFail",
-                "date": "2023-03-02",
+                "kind": "RegexNotMatch",
                 "message": "字段: `token`在正则表达式匹配时出错"
               }
             }
-          }
+          ]
         }
-      }
+      ]
     },
     {
       "kind": "string",
-      "name": "token",
+      "name": "title",
       "description": "画廊标题",
-      "actions": {
-        "select": {
-          "value": ".glink",
+      "actions": [
+        {
+          "selector": ".glink",
           "error": {
             "kind": "ElementNotFound",
-            "date": "2023-03-02",
             "message": "元素: `.glink`未找到"
           }
         },
-        "text": {
+        {
           "error": {
-            "kind": "ExportTextError",
-            "date": "2023-03-02",
+            "kind": "StrEmpty",
             "message": "文本: `token`获取出错"
           }
         }
-      }
+      ]
     },
     {
-      "kind": "object",
+      "kind": "Object",
       "name": "thumb",
       "description": "画廊的缩略图",
-      "actions": {
-        "select": {
-          "value": "img",
+      "actions": [
+        {
+          "selector": "img",
           "error": {
             "kind": "ElementNotFound",
-            "date": "2023-03-02",
             "message": "元素: `img`未找到"
           }
         }
-      },
-      "properties": {
-        "src": {
+      ],
+      "properties": [
+        {
           "kind": "string",
           "name": "src",
           "description": "缩略图的地址",
-          "actions": {
-            "regex": {
-              "anyOf": [
+          "actions": [
+            {
+              "regex": [
                 "<img[^>]*style=\"height:(\\d+)px;width:(\\d+)px[^\"]*\"[^>]*src=\"([^\"]+)\"",
                 "width:(\\d+)px; height:(\\d+)px.+?url\\((.+?)\\)"
               ],
               "group": 3,
               "error": {
-                "kind": "RegexMatchFail",
-                "date": "2023-03-02",
+                "kind": "RegexNotMatch",
                 "message": "字段: `src`在正则表达式匹配时出错"
               }
             }
-          }
+          ]
         },
-        "width": {
-          "kind": "number",
+        {
+          "kind": "Number",
           "name": "width",
           "description": "缩略图的宽",
-          "actions": {
-            "anyOf": [
-              {
-                "regex": {
-                  "value": "<img[^>]*style=\"height:(\\d+)px;width:(\\d+)px[^\"]*\"[^>]*src=\"([^\"]+)\"",
-                  "group": 2
-                }
+          "actions": [
+            {
+              "error": {
+                "kind": "AnyActionAllActionFail",
+                "message": "action列表全部执行失败"
               },
-              {
-                "regex": {
-                  "value": "width:(\\d+)px; height:(\\d+)px.+?url\\((.+?)\\)",
+              "actions": [
+                {
+                  "regex": "<img[^>]*style=\"height:(\\d+)px;width:(\\d+)px[^\"]*\"[^>]*src=\"([^\"]+)\"",
+                  "group": 2
+                },
+                {
+                  "regex": "width:(\\d+)px; height:(\\d+)px.+?url\\((.+?)\\)",
                   "group": 1
                 }
-              }
-            ]
-          }
+              ]
+            }
+          ]
         },
-        "height": {
-          "kind": "number",
+        {
+          "kind": "Number",
           "name": "height",
           "description": "缩略图的高",
-          "actions": {
-            "anyOf": [
-              {
-                "regex": {
-                  "value": "<img[^>]*style=\"height:(\\d+)px;width:(\\d+)px[^\"]*\"[^>]*src=\"([^\"]+)\"",
-                  "group": 1
-                }
+          "actions": [
+            {
+              "error": {
+                "kind": "AnyActionAllActionFail",
+                "message": "action列表全部执行失败"
               },
-              {
-                "regex": {
-                  "value": "width:(\\d+)px; height:(\\d+)px.+?url\\((.+?)\\)",
+              "actions": [
+                {
+                  "regex": "<img[^>]*style=\"height:(\\d+)px;width:(\\d+)px[^\"]*\"[^>]*src=\"([^\"]+)\"",
+                  "group": 1
+                },
+                {
+                  "regex": "width:(\\d+)px; height:(\\d+)px.+?url\\((.+?)\\)",
                   "group": 2
                 }
-              }
-            ]
-          }
+              ]
+            }
+          ]
         }
-      }
+      ]
     },
     {
-      "kind": "object",
+      "kind": "Object",
       "name": "category",
       "description": "画廊所属分类",
-      "actions": {
-        "select": {
-          "anyOf": [".gl1m > .cs", "[class^=gl] > .cn"]
+      "actions": [
+        {
+          "selector": [
+            ".gl1m > .cs",
+            "[class^=gl] > .cn"
+          ]
         }
-      },
-      "properties": {
-        "color": {
+      ],
+      "properties": [
+        {
           "kind": "string",
           "name": "color",
           "description": "分类的颜色",
-          "actions": {
-            "choose": {
+          "actions": [
+            {
               "keys": [
                 "Doujinshi",
                 "Manga",
@@ -203,248 +205,241 @@
               ],
               "error": {
                 "kind": "PatternNotCovered",
-                "date": "2023-03-02",
                 "message": "输入的值没有与之匹配的选项"
               }
             }
-          }
+          ]
         },
-        "string": {
+        {
           "kind": "string",
           "name": "string",
           "description": "分类的名称",
-          "actions": {
-            "text": {
+          "actions": [
+            {
               "error": {
-                "kind": "ExportTextError",
-                "date": "2023-03-02",
+                "kind": "StrEmpty",
                 "message": "文本: `string`获取出错"
               }
             }
-          }
+          ]
         }
-      }
+      ]
     },
     {
       "kind": "string",
       "name": "posted",
       "description": "画廊发布的时间",
-      "actions": {
-        "select": {
-          "value": "[id^=posted_]",
+      "actions": [
+        {
+          "selector": "[id^=posted_]",
           "error": {
             "kind": "ElementNotFound",
-            "date": "2023-03-02",
             "message": "元素: `[id^=posted_]`未找到"
           }
         },
-        "text": {
+        {
           "error": {
-            "kind": "ExportTextError",
-            "date": "2023-03-02",
+            "kind": "StrEmpty",
             "message": "文本: `posted`获取出错"
           }
         }
-      }
+      ]
     },
     {
       "kind": "string",
       "name": "uploader",
       "description": "画廊的上传用户",
       "nullable": true,
-      "actions": {
-        "select": {
-          "value": "[href^=\"https://e-hentai.org/uploader/\"]"
+      "actions": [
+        {
+          "selector": "[href^=\"https://e-hentai.org/uploader/\"]"
         },
-        "text": {}
-      }
+        null
+      ]
     },
     {
-      "kind": "array",
+      "kind": "Array",
       "name": "simple_tags",
       "description": "画廊的标签集合",
       "nullable": true,
-      "actions": {
-        "select": {
-          "value": ".glname .gt"
+      "actions": [
+        {
+          "selector": ".glname .gt"
         }
-      },
+      ],
       "item": {
         "kind": "string",
-        "actions": {
-          "attribute": {
-            "value": "title",
+        "actions": [
+          {
+            "attr": "title",
             "error": {
               "kind": "AttributeNotFound",
-              "date": "2023-03-02",
               "message": "属性: `title`未找到"
             }
           }
-        }
+        ]
       }
     },
     {
-      "kind": "number",
+      "kind": "Number",
       "name": "rate",
       "description": "画廊的评分",
-      "actions": {
-        "select": {
-          "anyOf": [".glthumb .ir", ".ir"],
+      "actions": [
+        {
+          "selector": [
+            ".glthumb .ir",
+            ".ir"
+          ],
           "description": "1. Minimal|MinimalPlus|Compact: `.glthumb .ir`\n2. Extended|Thumbnail:`.ir`\"\n"
         },
-        "attribute": {
-          "value": "style"
+        {
+          "attr": "style"
         },
-        "function": {
+        {
           "lang": "rust",
+          "error": {
+            "kind": "RunFunctionFail",
+            "message": "运行方法失败"
+          },
           "value": "const PATTERN_RATING: &str = r#\"\\d+px\"#;\n\nlet reg = Regex::new(PATTERN_RATING).unwrap();\nlet mut n1 = i32::MIN;\nlet mut n2 = i32::MIN;\n\nlet mut value = 5 as f32;\nlet mut ms = reg.find_iter(s);\nif let Some(m) = ms.next() {\n    n1 = m.as_str().replace(\"px\", \"\").parse::<i32>()?;\n}\n\nif let Some(m) = ms.next() {\n    n2 = m.as_str().replace(\"px\", \"\").parse::<i32>()?;\n}\n\nif n1 != i32::MIN && n2 != i32::MIN {\n    value -= (n1 / 16) as f32;\n    if n2 == 21 {\n        value -= 0.5 as f32;\n    }\n\n    Ok(Rate { value })\n} else {\n    Err(REGEX_MATCH_FAILED)\n}"
         }
-      }
+      ]
     },
     {
-      "kind": "number",
+      "kind": "Number",
       "name": "pages",
       "description": "画廊的页数",
-      "actions": {
-        "select": {
-          "value": "div:contains('pages')",
+      "actions": [
+        {
+          "selector": "div:contains('pages')",
           "error": {
             "kind": "ElementNotFound",
-            "date": "2023-03-02",
             "message": "元素: `div:contains('pages')`未找到"
           }
         },
-        "regex": {
-          "value": "(\\d+) pages$",
+        {
+          "regex": "(\\d+) pages$",
           "group": 1,
           "error": {
-            "kind": "RegexMatchFail",
-            "date": "2023-03-02",
+            "kind": "RegexNotMatch",
             "message": "字段: `pages`在正则表达式`(\\d+) pages$`匹配时出错"
           }
         }
-      }
+      ]
     },
     {
       "kind": "boolean",
       "inverted": false,
       "name": "is_favorited",
       "description": "画廊是否被收藏",
-      "actions": {
-        "select": {
-          "value": "[id^=posted_]",
+      "actions": [
+        {
+          "selector": "[id^=posted_]",
           "error": {
             "kind": "ElementNotFound",
-            "date": "2023-03-02",
             "message": "元素: `[id^=posted_]`未找到"
           }
         },
-        "attribute": {
-          "value": "style"
+        {
+          "attr": "style"
         }
-      }
+      ]
     },
     {
-      "kind": "object",
+      "kind": "Object",
       "name": "favorite_slot",
       "description": "画廊被收藏的槽位",
       "nullable": true,
-      "actions": {
-        "select": {
-          "value": "[id^=posted_]",
+      "actions": [
+        {
+          "selector": "[id^=posted_]",
           "error": {
             "kind": "ElementNotFound",
-            "date": "2023-03-02",
             "message": "元素: `[id^=posted_]`未找到"
           }
         },
-        "attribute": {
-          "value": "style"
+        {
+          "attr": "style"
         }
-      },
-      "properties": {
-        "r": {
+      ],
+      "properties": [
+        {
           "kind": "string",
           "name": "r",
           "description": "槽位颜色中的R",
-          "actions": {
-            "regex": {
-              "value": "background-color:rgba\\((\\d+),(\\d+),(\\d+),",
+          "actions": [
+            {
+              "regex": "background-color:rgba\\((\\d+),(\\d+),(\\d+),",
               "group": 1,
               "error": {
-                "kind": "RegexMatchFail",
-                "date": "2023-03-02",
+                "kind": "RegexNotMatch",
                 "message": "字段: `r`在正则表达式匹配时出错"
               }
             }
-          }
+          ]
         },
-        "g": {
+        {
           "kind": "string",
           "name": "g",
           "description": "槽位颜色中的G",
-          "actions": {
-            "regex": {
-              "value": "background-color:rgba\\((\\d+),(\\d+),(\\d+),",
+          "actions": [
+            {
+              "regex": "background-color:rgba\\((\\d+),(\\d+),(\\d+),",
               "group": 2,
               "error": {
-                "kind": "RegexMatchFail",
-                "date": "2023-03-02",
+                "kind": "RegexNotMatch",
                 "message": "字段: `g`在正则表达式匹配时出错"
               }
             }
-          }
+          ]
         },
-        "b": {
+        {
           "kind": "string",
           "name": "b",
           "description": "槽位颜色中的B",
-          "actions": {
-            "regex": {
-              "value": "background-color:rgba\\((\\d+),(\\d+),(\\d+),",
+          "actions": [
+            {
+              "regex": "background-color:rgba\\((\\d+),(\\d+),(\\d+),",
               "group": 3,
               "error": {
-                "kind": "RegexMatchFail",
-                "date": "2023-03-02",
+                "kind": "RegexNotMatch",
                 "message": "字段: `b`在正则表达式匹配时出错"
               }
             }
-          }
+          ]
         },
-        "value": {
-          "kind": "number",
+        {
+          "kind": "Number",
           "name": "value",
           "description": "槽位的序号",
-          "actions": {
-            "text": {
+          "actions": [
+            {
               "error": {
-                "kind": "ExportTextError",
-                "date": "2023-03-02",
+                "kind": "StrEmpty",
                 "message": "文本: `value`获取出错"
               }
             }
-          }
+          ]
         }
-      }
+      ]
     },
     {
       "kind": "string",
       "name": "favorite_name",
       "description": "画廊被收藏的槽位的名称",
       "nullable": true,
-      "actions": {
-        "select": {
-          "value": "[id^=posted_]"
+      "actions": [
+        {
+          "selector": "[id^=posted_]"
         },
-        "attribute": {
-          "value": "title",
+        {
+          "attr": "title",
           "error": {
             "kind": "AttributeNotFound",
-            "date": "2023-03-02",
             "message": "属性: `title`未找到"
           }
         }
-      }
+      ]
     }
   ]
 }
