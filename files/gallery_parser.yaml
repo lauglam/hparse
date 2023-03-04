@@ -1,0 +1,350 @@
+---
+kind: object
+name: gallery
+description: 画廊对象解析器
+properties:
+  - kind: object
+    name: token
+    description: 画廊的唯一身份信息
+    actions:
+      -
+        anyOf:
+          - ".glname a"
+          - ".gl2e a"
+        description: |
+          1. Minimal|MinimalPlus|Compact|Thumbnail: `.glname a`
+          2. Extended: `.gl2e a`
+        error:
+          kind: ElementNotFound
+          date: '2023-03-02'
+          message: '元素: `.glname a`或`.gl2e a`未找到'
+      -
+        value: href
+        error:
+          kind: AttributeNotFound
+          date: '2023-03-02'
+          message: '属性: `href`未找到'
+    properties:
+      gid:
+        kind: number
+        name: gid
+        description: 身份信息中的id
+        actions:
+          regex:
+            value: https?://(?:exhentai.org|e-hentai.org|lofi.e-hentai.org)/(?:g|mpv)/(\d+)/([0-9a-f]{10})
+            group: 1
+            error:
+              kind: RegexMatchFail
+              date: '2023-03-02'
+              message: '字段: `gid`在正则表达式匹配时出错'
+      token:
+        kind: string
+        name: token
+        description: 身份信息中的token
+        actions:
+          regex:
+            value: https?://(?:exhentai.org|e-hentai.org|lofi.e-hentai.org)/(?:g|mpv)/(\d+)/([0-9a-f]{10})
+            group: 2
+            error:
+              kind: RegexMatchFail
+              date: '2023-03-02'
+              message: '字段: `token`在正则表达式匹配时出错'
+  - kind: string
+    name: token
+    description: 画廊标题
+    actions:
+      select:
+        value: ".glink"
+        error:
+          kind: ElementNotFound
+          date: '2023-03-02'
+          message: '元素: `.glink`未找到'
+      text:
+        error:
+          kind: ExportTextError
+          date: '2023-03-02'
+          message: '文本: `token`获取出错'
+  - kind: object
+    name: thumb
+    description: 画廊的缩略图
+    actions:
+      select:
+        value: img
+        error:
+          kind: ElementNotFound
+          date: '2023-03-02'
+          message: '元素: `img`未找到'
+    properties:
+      src:
+        kind: string
+        name: src
+        description: 缩略图的地址
+        actions:
+          regex:
+            anyOf:
+              - <img[^>]*style="height:(\d+)px;width:(\d+)px[^"]*"[^>]*src="([^"]+)"
+              - width:(\d+)px; height:(\d+)px.+?url\((.+?)\)
+            group: 3
+            error:
+              kind: RegexMatchFail
+              date: '2023-03-02'
+              message: '字段: `src`在正则表达式匹配时出错'
+      width:
+        kind: number
+        name: width
+        description: 缩略图的宽
+        actions:
+          anyOf:
+            - regex:
+                value: <img[^>]*style="height:(\d+)px;width:(\d+)px[^"]*"[^>]*src="([^"]+)"
+                group: 2
+            - regex:
+                value: width:(\d+)px; height:(\d+)px.+?url\((.+?)\)
+                group: 1
+      height:
+        kind: number
+        name: height
+        description: 缩略图的高
+        actions:
+          anyOf:
+            - regex:
+                value: <img[^>]*style="height:(\d+)px;width:(\d+)px[^"]*"[^>]*src="([^"]+)"
+                group: 1
+            - regex:
+                value: width:(\d+)px; height:(\d+)px.+?url\((.+?)\)
+                group: 2
+  - kind: object
+    name: category
+    description: 画廊所属分类
+    actions:
+      select:
+        anyOf:
+          - ".gl1m > .cs"
+          - "[class^=gl] > .cn"
+    properties:
+      color:
+        kind: string
+        name: color
+        description: 分类的颜色
+        actions:
+          choose:
+            keys:
+              - Doujinshi
+              - Manga
+              - Artist CG
+              - Game CG
+              - Western
+              - Non-H
+              - Image Set
+              - Cosplay
+              - Asian Porn
+              - Misc
+            values:
+              - "#fc4e4e"
+              - "#e78c1a"
+              - "#c7bf07"
+              - "#1a9317"
+              - "#5dc13b"
+              - "#0f9ebd"
+              - "#2756aa"
+              - "#8800c3"
+              - "#b452a5"
+              - "#707070"
+            error:
+              kind: PatternNotCovered
+              date: '2023-03-02'
+              message: 输入的值没有与之匹配的选项
+      string:
+        kind: string
+        name: string
+        description: 分类的名称
+        actions:
+          text:
+            error:
+              kind: ExportTextError
+              date: '2023-03-02'
+              message: '文本: `string`获取出错'
+  - kind: string
+    name: posted
+    description: 画廊发布的时间
+    actions:
+      select:
+        value: "[id^=posted_]"
+        error:
+          kind: ElementNotFound
+          date: '2023-03-02'
+          message: '元素: `[id^=posted_]`未找到'
+      text:
+        error:
+          kind: ExportTextError
+          date: '2023-03-02'
+          message: '文本: `posted`获取出错'
+  - kind: string
+    name: uploader
+    description: 画廊的上传用户
+    nullable: true
+    actions:
+      select:
+        value: '[href^="https://e-hentai.org/uploader/"]'
+      text: {}
+  - kind: array
+    name: simple_tags
+    description: 画廊的标签集合
+    nullable: true
+    actions:
+      select:
+        value: ".glname .gt"
+    item:
+      kind: string
+      actions:
+        attribute:
+          value: title
+          error:
+            kind: AttributeNotFound
+            date: '2023-03-02'
+            message: '属性: `title`未找到'
+  - kind: number
+    name: rate
+    description: 画廊的评分
+    actions:
+      select:
+        anyOf:
+          - ".glthumb .ir"
+          - ".ir"
+        description: |
+          1. Minimal|MinimalPlus|Compact: `.glthumb .ir`
+          2. Extended|Thumbnail:`.ir`"
+      attribute:
+        value: style
+      function:
+        lang: rust
+        value: |-
+          const PATTERN_RATING: &str = r#"\d+px"#;
+          
+          let reg = Regex::new(PATTERN_RATING).unwrap();
+          let mut n1 = i32::MIN;
+          let mut n2 = i32::MIN;
+          
+          let mut value = 5 as f32;
+          let mut ms = reg.find_iter(s);
+          if let Some(m) = ms.next() {
+              n1 = m.as_str().replace("px", "").parse::<i32>()?;
+          }
+          
+          if let Some(m) = ms.next() {
+              n2 = m.as_str().replace("px", "").parse::<i32>()?;
+          }
+          
+          if n1 != i32::MIN && n2 != i32::MIN {
+              value -= (n1 / 16) as f32;
+              if n2 == 21 {
+                  value -= 0.5 as f32;
+              }
+          
+              Ok(Rate { value })
+          } else {
+              Err(REGEX_MATCH_FAILED)
+          }
+  - kind: number
+    name: pages
+    description: 画廊的页数
+    actions:
+      select:
+        value: div:contains('pages')
+        error:
+          kind: ElementNotFound
+          date: '2023-03-02'
+          message: '元素: `div:contains(''pages'')`未找到'
+      regex:
+        value: "(\\d+) pages$"
+        group: 1
+        error:
+          kind: RegexMatchFail
+          date: '2023-03-02'
+          message: '字段: `pages`在正则表达式`(\d+) pages$`匹配时出错'
+  - kind: boolean
+    inverted: false
+    name: is_favorited
+    description: 画廊是否被收藏
+    actions:
+      select:
+        value: "[id^=posted_]"
+        error:
+          kind: ElementNotFound
+          date: '2023-03-02'
+          message: '元素: `[id^=posted_]`未找到'
+      attribute:
+        value: style
+  - kind: object
+    name: favorite_slot
+    description: 画廊被收藏的槽位
+    nullable: true
+    actions:
+      select:
+        value: "[id^=posted_]"
+        error:
+          kind: ElementNotFound
+          date: '2023-03-02'
+          message: '元素: `[id^=posted_]`未找到'
+      attribute:
+        value: style
+    properties:
+      r:
+        kind: string
+        name: r
+        description: 槽位颜色中的R
+        actions:
+          regex:
+            value: background-color:rgba\((\d+),(\d+),(\d+),
+            group: 1
+            error:
+              kind: RegexMatchFail
+              date: '2023-03-02'
+              message: '字段: `r`在正则表达式匹配时出错'
+      g:
+        kind: string
+        name: g
+        description: 槽位颜色中的G
+        actions:
+          regex:
+            value: background-color:rgba\((\d+),(\d+),(\d+),
+            group: 2
+            error:
+              kind: RegexMatchFail
+              date: '2023-03-02'
+              message: '字段: `g`在正则表达式匹配时出错'
+      b:
+        kind: string
+        name: b
+        description: 槽位颜色中的B
+        actions:
+          regex:
+            value: background-color:rgba\((\d+),(\d+),(\d+),
+            group: 3
+            error:
+              kind: RegexMatchFail
+              date: '2023-03-02'
+              message: '字段: `b`在正则表达式匹配时出错'
+      value:
+        kind: number
+        name: value
+        description: 槽位的序号
+        actions:
+          text:
+            error:
+              kind: ExportTextError
+              date: '2023-03-02'
+              message: '文本: `value`获取出错'
+  - kind: string
+    name: favorite_name
+    description: 画廊被收藏的槽位的名称
+    nullable: true
+    actions:
+      select:
+        value: "[id^=posted_]"
+      attribute:
+        value: title
+        error:
+          kind: AttributeNotFound
+          date: '2023-03-02'
+          message: '属性: `title`未找到'

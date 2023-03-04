@@ -1,0 +1,13 @@
+[package]
+name = "hparse"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+regex = "1.7.1"
+visdom = "0.5.9"
+
+serde = { version = "1.0.152", features = ["derive"] }
+serde_yaml = "0.9.17"
