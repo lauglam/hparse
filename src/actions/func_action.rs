@@ -1,12 +1,12 @@
 use serde::{Deserialize, Serialize};
-use crate::actions::{ActionError, ActionErrorKind, ActionResult};
+use crate::actions::{ActionErrorKind, ActionResult};
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct FuncAction {
     lang: String,
     value: String,
     description: Option<String>,
-    error: ActionError,
+    exception: Option<String>,
 }
 
 impl FuncAction {
@@ -14,14 +14,9 @@ impl FuncAction {
         lang: String,
         value: String,
         description: Option<String>,
-        error: Option<String>,
+        exception: Option<String>,
     ) -> FuncAction {
-        let error = ActionError::new(
-            ActionErrorKind::AnyActionAllActionFail,
-            error,
-        );
-
-        FuncAction { lang, value, description, error }
+        FuncAction { lang, value, description, exception }
     }
 
     pub fn act(&self, k: &str) -> ActionResult<String> {

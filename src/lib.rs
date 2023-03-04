@@ -9,6 +9,7 @@ pub enum ParseKind {
     Object,
     Array,
     String,
+    Boolean,
 }
 
 #[derive(Debug, PartialEq, Clone, serde::Serialize, serde::Deserialize)]
@@ -21,6 +22,8 @@ pub struct ParseFile {
     properties: Box<Option<Vec<ParseFile>>>,
     // default `false`
     use_parent: Option<bool>,
+    // default `false`
+    nullable: Option<bool>,
 
     description: Option<String>,
 }
@@ -32,6 +35,7 @@ impl ParseFile {
         actions: Option<Vec<Action>>,
         properties: Option<Vec<ParseFile>>,
         use_parent: Option<bool>,
+        nullable: Option<bool>,
         description: Option<String>,
     ) -> ParseFile {
         let properties = Box::new(properties);
@@ -42,16 +46,29 @@ impl ParseFile {
             actions,
             properties,
             use_parent,
+            nullable,
 
             description,
         }
     }
 
     pub fn json(&self, s: &str, parent: Option<&str>) -> ParseResult<String> {
-        let pre_process = self.use_actions(self.use_parent(s, parent))?;
+        let pre_process = self.use_actions(self.use_parent(s, parent));
+
+        if self.nullable.is_some_and(|b| b && pre_process.is_err()) {
+            // `nullable` is `true`
+            return Ok(String::new());
+        }
+
+        if self.kind == ParseKind::Boolean {
+            // `kind` is `Boolean`
+            return Ok(format!(r#""{}":"{}""#, self.name, pre_process.is_ok()));
+        }
+
+        let pre_process = pre_process?;
 
         if self.kind == ParseKind::String {
-            return Ok(format!("{}:{}", self.name, pre_process));
+            return Ok(format!(r#""{}":"{}""#, self.name, pre_process));
         }
 
         match self.properties.as_ref() {
@@ -62,9 +79,34 @@ impl ParseFile {
                 }
 
                 let res = res.join(",");
+
+                // root:
+                // {
+                //   "gid": "xxx",
+                //   "token": "xxx",
+                //  }
+                //
+                // not root:
+                // "category": {
+                //               "gid": "xxx",
+                //               "token": "xxx",
+                //             }
+                let is_root = parent.is_none();
                 match self.kind {
-                    ParseKind::Object => Ok(format!("{{{}}}", res)),
-                    ParseKind::Array => Ok(format!("[{}]", res)),
+                    ParseKind::Object => Ok(
+                        if is_root {
+                            format!(r"{{{}}}", res)
+                        } else {
+                            format!(r#""{}":{{{}}}"#, self.name, res)
+                        }
+                    ),
+                    ParseKind::Array => Ok(
+                        if is_root {
+                            format!("[{}]", res)
+                        } else {
+                            format!(r#""{}":[{}]"#, self.name, res)
+                        }
+                    ),
                     _ => unreachable!(),
                 }
             }

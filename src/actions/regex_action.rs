@@ -7,7 +7,7 @@ pub struct RegexAction {
     regex: Variable<String>,
     group: usize,
     description: Option<String>,
-    error: ActionError,
+    exception: Option<String>,
 }
 
 impl RegexAction {
@@ -15,14 +15,9 @@ impl RegexAction {
         regex: Variable<String>,
         group: usize,
         description: Option<String>,
-        error: Option<String>,
+        exception: Option<String>,
     ) -> RegexAction {
-        let error = ActionError::new(
-            ActionErrorKind::AnyActionAllActionFail,
-            error,
-        );
-
-        RegexAction { regex, group, description, error }
+        RegexAction { regex, group, description, exception }
     }
 
     pub fn act(&self, s: &str) -> ActionResult<String> {
@@ -33,7 +28,7 @@ impl RegexAction {
                 if let Some(cap) = r.captures(s) {
                     Ok(String::from(&cap[self.group]))
                 } else {
-                    Err(self.error.clone())
+                    Err(ActionError::new(ActionErrorKind::RegexNotMatch, self.exception.clone()))
                 }
             },
             &mut |a| {
@@ -44,7 +39,8 @@ impl RegexAction {
                         return Ok(String::from(&cap[self.group]));
                     }
                 }
-                Err(self.error.clone())
+
+                Err(ActionError::new(ActionErrorKind::RegexNotMatch, self.exception.clone()))
             },
         )
     }

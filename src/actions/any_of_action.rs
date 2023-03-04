@@ -4,21 +4,16 @@ use crate::actions::{Action, ActionErrorKind, ActionError, ActionResult};
 pub struct AnyOfAction {
     actions: Box<Vec<Action>>,
     description: Option<String>,
-    error: ActionError,
+    exception: Option<String>,
 }
 
 impl AnyOfAction {
     pub fn new(
         actions: Vec<Action>,
         description: Option<String>,
-        error: Option<String>,
+        exception: Option<String>,
     ) -> AnyOfAction {
-        let error = ActionError::new(
-            ActionErrorKind::AnyActionAllActionFail,
-            error,
-        );
-
-        AnyOfAction { actions: Box::new(actions), description, error }
+        AnyOfAction { actions: Box::new(actions), description, exception }
     }
 
     pub fn act(&self, s: &str) -> ActionResult<String> {
@@ -29,6 +24,6 @@ impl AnyOfAction {
             // ignore `actions` item error
         }
 
-        Err(self.error.clone())
+        Err(ActionError::new(ActionErrorKind::AnyActionAllActionFail, self.exception.clone()))
     }
 }

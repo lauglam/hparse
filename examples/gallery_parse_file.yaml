@@ -7,21 +7,17 @@ properties:
     name: token
     description: 画廊的唯一身份信息
     actions:
-      - !Regex
-        regex: !AnyOf
+      - !Select
+        selector: !AnyOf
           - ".glname a"
           - ".gl2e a"
         description: |
           1. Minimal|MinimalPlus|Compact|Thumbnail: `.glname a`
           2. Extended: `.gl2e a`
-        error:
-          kind: ElementNotFound
-          message: '元素: `.glname a`或`.gl2e a`未找到'
+        exception: '元素: `.glname a`或`.gl2e a`未找到'
       - !Attribute
         attr: !Single href
-        error:
-          kind: AttributeNotFound
-          message: '属性: `href`未找到'
+        exception: '属性: `href`未找到'
     properties:
       - kind: String
         name: gid
@@ -30,43 +26,33 @@ properties:
           - !Regex
             regex: !Single https?://(?:exhentai.org|e-hentai.org|lofi.e-hentai.org)/(?:g|mpv)/(\d+)/([0-9a-f]{10})
             group: 1
-            error:
-              kind: RegexNotMatch
-              message: '字段: `gid`在正则表达式匹配时出错'
-      - kind: string
+            exception: '字段: `gid`在正则表达式匹配时出错'
+      - kind: String
         name: token
         description: 身份信息中的token
         actions:
           - !Regex
             regex: !Single https?://(?:exhentai.org|e-hentai.org|lofi.e-hentai.org)/(?:g|mpv)/(\d+)/([0-9a-f]{10})
             group: 2
-            error:
-              kind: RegexNotMatch
-              message: '字段: `token`在正则表达式匹配时出错'
-  - kind: string
+            exception: '字段: `token`在正则表达式匹配时出错'
+  - kind: String
     name: title
     description: 画廊标题
     actions:
       - !Select
         selector: !Single ".glink"
-        error:
-          kind: ElementNotFound
-          message: '元素: `.glink`未找到'
-      - !Text
-        error:
-          kind: StrEmpty
-          message: '文本: `token`获取出错'
+        exception: '元素: `.glink`未找到'
+      - !Str
+        exception: '文本: `token`获取出错'
   - kind: Object
     name: thumb
     description: 画廊的缩略图
     actions:
       - !Select
         selector: !Single img
-        error:
-          kind: ElementNotFound
-          message: '元素: `img`未找到'
+        exception: '元素: `img`未找到'
     properties:
-      - kind: string
+      - kind: String
         name: src
         description: 缩略图的地址
         actions:
@@ -75,17 +61,13 @@ properties:
               - <img[^>]*style="height:(\d+)px;width:(\d+)px[^"]*"[^>]*src="([^"]+)"
               - width:(\d+)px; height:(\d+)px.+?url\((.+?)\)
             group: 3
-            error:
-              kind: RegexNotMatch
-              message: '字段: `src`在正则表达式匹配时出错'
+            exception: '字段: `src`在正则表达式匹配时出错'
       - kind: String
         name: width
         description: 缩略图的宽
         actions:
           - !AnyOf
-            error:
-              kind: AnyActionAllActionFail
-              message: 'action列表全部执行失败'
+            exception: 'action列表全部执行失败'
             actions:
               - !Regex
                 regex: !Single <img[^>]*style="height:(\d+)px;width:(\d+)px[^"]*"[^>]*src="([^"]+)"
@@ -98,14 +80,12 @@ properties:
         description: 缩略图的高
         actions:
           - !AnyOf
-            error:
-              kind: AnyActionAllActionFail
-              message: 'action列表全部执行失败'
+            exception: 'action列表全部执行失败'
             actions:
-              - !Regex:
+              - !Regex
                 regex: !Single <img[^>]*style="height:(\d+)px;width:(\d+)px[^"]*"[^>]*src="([^"]+)"
                 group: 1
-              - !Regex:
+              - !Regex
                 regex: !Single width:(\d+)px; height:(\d+)px.+?url\((.+?)\)
                 group: 2
   - kind: Object
@@ -117,7 +97,7 @@ properties:
           - ".gl1m > .cs"
           - "[class^=gl] > .cn"
     properties:
-      - kind: string
+      - kind: String
         name: color
         description: 分类的颜色
         actions:
@@ -144,38 +124,30 @@ properties:
               - "#8800c3"
               - "#b452a5"
               - "#707070"
-            error:
-              kind: PatternNotCovered
-              message: 输入的值没有与之匹配的选项
-      - kind: string
-        name: string
+            exception: 输入的值没有与之匹配的选项
+      - kind: String
+        name: String
         description: 分类的名称
         actions:
-          - !Text
-            error:
-              kind: StrEmpty
-              message: '文本: `string`获取出错'
-  - kind: string
+          - !Str
+            exception: '文本: `String`获取出错'
+  - kind: String
     name: posted
     description: 画廊发布的时间
     actions:
       - !Select
         selector: !Single "[id^=posted_]"
-        error:
-          kind: ElementNotFound
-          message: '元素: `[id^=posted_]`未找到'
-      - !Text
-        error:
-          kind: StrEmpty
-          message: '文本: `posted`获取出错'
-  - kind: string
+        exception: '元素: `[id^=posted_]`未找到'
+      - !Str
+        exception: '文本: `posted`获取出错'
+  - kind: String
     name: uploader
     description: 画廊的上传用户
     nullable: true
     actions:
       - !Select
         selector: !Single '[href^="https://e-hentai.org/uploader/"]'
-      - !Text
+      - !Str
   - kind: Array
     name: simple_tags
     description: 画廊的标签集合
@@ -184,13 +156,11 @@ properties:
       - !Select
         selector: !Single ".glname .gt"
     item:
-      kind: string
+      kind: String
       actions:
         - !Attribute
           attr: !Single title
-          error:
-            kind: AttributeNotFound
-            message: '属性: `title`未找到'
+          exception: '属性: `title`未找到'
   - kind: String
     name: rate
     description: 画廊的评分
@@ -206,9 +176,7 @@ properties:
         attr: !Single style
       - !Func
         lang: rust
-        error:
-          kind: RunFunctionFail
-          message: '运行方法失败'
+        exception: '运行方法失败'
         value: |-
           const PATTERN_RATING: &str = r#"\d+px"#;
           
@@ -242,25 +210,19 @@ properties:
     actions:
       - !Select
         selector: !Single div:contains('pages')
-        error:
-          kind: ElementNotFound
-          message: '元素: `div:contains(''pages'')`未找到'
+        exception: '元素: `div:contains(''pages'')`未找到'
       - !Regex
         regex: !Single "(\\d+) pages$"
         group: 1
-        error:
-          kind: RegexNotMatch
-          message: '字段: `pages`在正则表达式`(\d+) pages$`匹配时出错'
-  - kind: boolean
+        exception: '字段: `pages`在正则表达式`(\d+) pages$`匹配时出错'
+  - kind: Boolean
     inverted: false
     name: is_favorited
     description: 画廊是否被收藏
     actions:
       - !Select
         selector: !Single "[id^=posted_]"
-        error:
-          kind: ElementNotFound
-          message: '元素: `[id^=posted_]`未找到'
+        exception: '元素: `[id^=posted_]`未找到'
       - !Attribute
         attr: !Single style
   - kind: Object
@@ -270,51 +232,41 @@ properties:
     actions:
       - !Select
         selector: !Single "[id^=posted_]"
-        error:
-          kind: ElementNotFound
-          message: '元素: `[id^=posted_]`未找到'
+        exception: '元素: `[id^=posted_]`未找到'
       - !Attribute
         attr: !Single style
     properties:
-      - kind: string
+      - kind: String
         name: r
         description: 槽位颜色中的R
         actions:
           - !Regex
             regex: !Single background-color:rgba\((\d+),(\d+),(\d+),
             group: 1
-            error:
-              kind: RegexNotMatch
-              message: '字段: `r`在正则表达式匹配时出错'
-      - kind: string
+            exception: '字段: `r`在正则表达式匹配时出错'
+      - kind: String
         name: g
         description: 槽位颜色中的G
         actions:
           - !Regex
             regex: !Single background-color:rgba\((\d+),(\d+),(\d+),
             group: 2
-            error:
-              kind: RegexNotMatch
-              message: '字段: `g`在正则表达式匹配时出错'
-      - kind: string
+            exception: '字段: `g`在正则表达式匹配时出错'
+      - kind: String
         name: b
         description: 槽位颜色中的B
         actions:
           - !Regex
             regex: !Single background-color:rgba\((\d+),(\d+),(\d+),
             group: 3
-            error:
-              kind: RegexNotMatch
-              message: '字段: `b`在正则表达式匹配时出错'
+            exception: '字段: `b`在正则表达式匹配时出错'
       - kind: String
         name: value
         description: 槽位的序号
         actions:
-          - !Text
-            error:
-              kind: StrEmpty
-              message: '文本: `value`获取出错'
-  - kind: string
+          - !Str
+            exception: '文本: `value`获取出错'
+  - kind: String
     name: favorite_name
     description: 画廊被收藏的槽位的名称
     nullable: true
@@ -323,6 +275,4 @@ properties:
         selector: !Single "[id^=posted_]"
       - !Attribute
         attr: !Single title
-        error:
-          kind: AttributeNotFound
-          message: '属性: `title`未找到'
+        exception: '属性: `title`未找到'

@@ -6,21 +6,16 @@ use crate::actions::{ActionError, ActionErrorKind, ActionResult, Variable};
 pub struct SelectAction {
     selector: Variable<String>,
     description: Option<String>,
-    error: ActionError,
+    exception: Option<String>,
 }
 
 impl SelectAction {
     pub fn new(
         selector: Variable<String>,
         description: Option<String>,
-        error: Option<String>,
+        exception: Option<String>,
     ) -> SelectAction {
-        let error = ActionError::new(
-            ActionErrorKind::AnyActionAllActionFail,
-            error,
-        );
-
-        SelectAction { selector, description, error }
+        SelectAction { selector, description, exception }
     }
 
     pub fn act(&self, s: &str) -> ActionResult<String> {
@@ -31,7 +26,10 @@ impl SelectAction {
                 let h = r.find(s).outer_html();
 
                 match h.is_empty() {
-                    true => Err(self.error.clone()),
+                    true => Err(ActionError::new(
+                        ActionErrorKind::ElementNotFound,
+                        self.exception.clone(),
+                    )),
                     false => Ok(h),
                 }
             },
@@ -42,7 +40,8 @@ impl SelectAction {
                         return Ok(h);
                     }
                 }
-                Err(self.error.clone())
+
+                Err(ActionError::new(ActionErrorKind::ElementNotFound, self.exception.clone()))
             },
         )
     }

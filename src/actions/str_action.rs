@@ -5,20 +5,15 @@ use crate::actions::{ActionError, ActionErrorKind, ActionResult};
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct StrAction {
     description: Option<String>,
-    error: ActionError,
+    exception: Option<String>,
 }
 
 impl StrAction {
     pub fn new(
         description: Option<String>,
-        error: Option<String>,
+        exception: Option<String>,
     ) -> StrAction {
-        let error = ActionError::new(
-            ActionErrorKind::AnyActionAllActionFail,
-            error,
-        );
-
-        StrAction { description, error }
+        StrAction { description, exception }
     }
 
     pub fn act(&self, s: &str) -> ActionResult<String> {
@@ -26,7 +21,10 @@ impl StrAction {
         let t = r.text();
 
         match t.is_empty() {
-            true => Err(self.error.clone()),
+            true => Err(ActionError::new(
+                ActionErrorKind::StrEmpty,
+                self.exception.clone(),
+            )),
             false => Ok(t)
         }
     }

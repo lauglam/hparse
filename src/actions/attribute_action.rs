@@ -6,21 +6,16 @@ use crate::actions::{ActionError, ActionErrorKind, ActionResult, Variable};
 pub struct AttributeAction {
     attr: Variable<String>,
     description: Option<String>,
-    error: ActionError,
+    exception: Option<String>,
 }
 
 impl AttributeAction {
     pub fn new(
         attr: Variable<String>,
         description: Option<String>,
-        error: Option<String>,
+        exception: Option<String>,
     ) -> AttributeAction {
-        let error = ActionError::new(
-            ActionErrorKind::AnyActionAllActionFail,
-            error,
-        );
-
-        AttributeAction { attr, description, error }
+        AttributeAction { attr, description, exception }
     }
 
     pub fn act(&self, s: &str) -> ActionResult<String> {
@@ -31,7 +26,7 @@ impl AttributeAction {
                 if let Some(attr) = r.attr(s) {
                     Ok(attr.to_string())
                 } else {
-                    Err(self.error.clone())
+                    Err(ActionError::new(ActionErrorKind::AttributeNotFound, self.exception.clone()))
                 }
             },
             &mut |a| {
@@ -40,7 +35,8 @@ impl AttributeAction {
                         return Ok(attr.to_string());
                     }
                 }
-                Err(self.error.clone())
+
+                Err(ActionError::new(ActionErrorKind::AttributeNotFound, self.exception.clone()))
             },
         )
     }

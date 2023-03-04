@@ -17,9 +17,7 @@ Since `attr` has two [kind](#variable), you need to indicate(`!Single`or`!AnyOf`
 ```yaml
 attr: !Single href
 description: href attribute action
-error:
-  kind: AttributeNotFound
-  message: 'attribute: `href`not found'
+exception: 'attribute: `href`not found'
 ```
 
 or
@@ -29,9 +27,7 @@ attr: !AnyOf
   - href
   - title
 description: href attribute action
-error:
-  kind: AttributeNotFound
-  message: 'attribute: `href`not found'
+exception: 'attribute: `href`not found'
 ```
 
 ### Example: create [ChooseAction](#action--chooseaction)
@@ -60,9 +56,7 @@ values:
   - "#b452a5"
   - "#707070"
 description: the description of choose action
-error:
-  kind: PatternNotCovered
-  message: the value entered has no matching options
+exception: the value entered has no matching options
 ```
 
 ### Example: create [FuncAction](#action--funcaction)
@@ -77,9 +71,7 @@ Since `regex` has two [kind](#variable), you need to indicate(`!Single`or`!AnyOf
 regex: !Single https?://(?:exhentai.org|e-hentai.org|lofi.e-hentai.org)/(?:g|mpv)/(\d+)/([0-9a-f]{10})
 group: 1
 description: description of regex action
-error:
-  kind: RegexNotMatch
-  message: 'field: 'gid' error in regular expression matching'
+exception: 'field: 'gid' error in regular expression matching'
 ```
 
 or
@@ -90,9 +82,7 @@ regex: !AnyOf
   - http?://(?:exhentai.org|e-hentai.org|lofi.e-hentai.org)/(?:g|mpv)/(\d+)/([0-9a-f]{10})
 group: 1
 description: description of regex action
-error:
-  kind: RegexNotMatch
-  message: 'field: 'gid' error in regular expression matching'
+exception: 'field: 'gid' error in regular expression matching'
 ```
 
 ### Example: create [SelectAction](#action--selectaction)
@@ -102,9 +92,7 @@ Since `selector` has two [kind](#variable), you need to indicate(`!Single`or`!An
 ```yaml
 selector: !Single img
 description: description of select action
-error:
-  kind: ElementNotFound
-  message: 'element: `img` not found'
+exception: 'element: `img` not found'
 ```
 
 or
@@ -114,18 +102,14 @@ selector: !AnyOf
   - img
   - a
 description: description of select action
-error:
-  kind: ElementNotFound
-  message: 'element: `img` not found'
+exception: 'element: `img` not found'
 ```
 
 ### Example: create [StrAction](#action--straction)
 
 ```yaml
 description: description of text action
-error:
-  kind: StrEmpty
-  message: string empty
+exception: string empty
 ```
 
 ### Example: create [AnyOfAction](#action--anyofaction)
@@ -146,9 +130,7 @@ actions:
 description: |
   Attention:
   This is the `actions` field in the `AayOfAction`, not the `actions` field in the `ParseFile`
-error:
-  kind: AnyActionAllActionFail
-  message: All Actions have no return value
+exception: All Actions have no return value
 ```
 
 ### Example: create ParseFile

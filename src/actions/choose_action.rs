@@ -6,7 +6,7 @@ pub struct ChooseAction {
     keys: Vec<String>,
     values: Vec<String>,
     description: Option<String>,
-    error: ActionError,
+    exception: Option<String>,
 }
 
 impl ChooseAction {
@@ -14,14 +14,9 @@ impl ChooseAction {
         keys: Vec<String>,
         values: Vec<String>,
         description: Option<String>,
-        error: Option<String>,
+        exception: Option<String>,
     ) -> ChooseAction {
-        let error = ActionError::new(
-            ActionErrorKind::AnyActionAllActionFail,
-            error,
-        );
-
-        ChooseAction { keys, values, description, error }
+        ChooseAction { keys, values, description, exception }
     }
 
     pub fn act(&self, k: &str) -> ActionResult<String> {
@@ -30,7 +25,7 @@ impl ChooseAction {
         if let Some(idx) = idx {
             Ok(self.values[idx].clone())
         } else {
-            Err(self.error.clone())
+            Err(ActionError::new(ActionErrorKind::PatternNotCovered, self.exception.clone()))
         }
     }
 }
