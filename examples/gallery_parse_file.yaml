@@ -7,7 +7,7 @@ properties:
     name: token
     description: 画廊的唯一身份信息
     actions:
-      - !Select
+      - !Regex
         regex: !AnyOf
           - ".glname a"
           - ".gl2e a"
@@ -23,7 +23,7 @@ properties:
           kind: AttributeNotFound
           message: '属性: `href`未找到'
     properties:
-      - kind: Number
+      - kind: String
         name: gid
         description: 身份信息中的id
         actions:
@@ -78,7 +78,7 @@ properties:
             error:
               kind: RegexNotMatch
               message: '字段: `src`在正则表达式匹配时出错'
-      - kind: Number
+      - kind: String
         name: width
         description: 缩略图的宽
         actions:
@@ -93,7 +93,7 @@ properties:
               - !Regex
                 regex: !Single width:(\d+)px; height:(\d+)px.+?url\((.+?)\)
                 group: 1
-      - kind: Number
+      - kind: String
         name: height
         description: 缩略图的高
         actions:
@@ -191,7 +191,7 @@ properties:
           error:
             kind: AttributeNotFound
             message: '属性: `title`未找到'
-  - kind: Number
+  - kind: String
     name: rate
     description: 画廊的评分
     actions:
@@ -236,7 +236,7 @@ properties:
           } else {
               Err(REGEX_MATCH_FAILED)
           }
-  - kind: Number
+  - kind: String
     name: pages
     description: 画廊的页数
     actions:
@@ -306,7 +306,7 @@ properties:
             error:
               kind: RegexNotMatch
               message: '字段: `b`在正则表达式匹配时出错'
-      - kind: Number
+      - kind: String
         name: value
         description: 槽位的序号
         actions:
