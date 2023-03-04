@@ -17,7 +17,7 @@ pub use {
 };
 
 
-type ActionResult<T> = Result<T, ActionError>;
+pub type ActionResult<T> = Result<T, ActionError>;
 
 #[derive(Debug, PartialEq, Clone, serde::Serialize, serde::Deserialize)]
 pub enum Action {
@@ -28,6 +28,20 @@ pub enum Action {
     Regex(RegexAction),
     Select(SelectAction),
     Str(StrAction),
+}
+
+impl Action {
+    pub fn act(&self, s: &str) -> ActionResult<String> {
+        match self {
+            Action::AnyOf(a) => a.act(s),
+            Action::Attribute(a) => a.act(s),
+            Action::Choose(a) => a.act(s),
+            Action::Func(a) => a.act(s),
+            Action::Regex(a) => a.act(s),
+            Action::Select(a) => a.act(s),
+            Action::Str(a) => a.act(s),
+        }
+    }
 }
 
 #[derive(Debug, PartialEq, Clone, serde::Serialize, serde::Deserialize)]

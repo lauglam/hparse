@@ -1,4 +1,3 @@
-use std::ops::Deref;
 use crate::actions::{Action, ActionErrorKind, ActionError, ActionResult};
 
 #[derive(Debug, PartialEq, Clone, serde::Serialize, serde::Deserialize)]
@@ -23,21 +22,11 @@ impl AnyOfAction {
     }
 
     pub fn act(&self, s: &str) -> ActionResult<String> {
-        for action in self.actions.deref() {
-            let res = match action {
-                Action::AnyOf(a) => a.act(s),
-                Action::Attribute(a) => a.act(s),
-                Action::Choose(a) => a.act(s),
-                Action::Func(a) => a.act(s),
-                Action::Regex(a) => a.act(s),
-                Action::Select(a) => a.act(s),
-                Action::Str(a) => a.act(s),
-            };
-
-            if let Ok(s) = res {
-                // ignore `actions` item error
+        for action in self.actions.as_ref() {
+            if let Ok(s) = action.act(s) {
                 return Ok(s);
             }
+            // ignore `actions` item error
         }
 
         Err(self.error.clone())
