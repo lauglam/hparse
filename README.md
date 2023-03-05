@@ -143,61 +143,61 @@ exception: All Actions have no return value
 
 ### Action: AnyOfAction
 
-| field       | type                        | required | description |
-|-------------|-----------------------------|----------|-------------|
-| actions     | array(Action)               | true     |             |
-| description | string                      | false    |             |
-| error       | [ActionError](#actionerror) | false    |             |
+| field       | type          | required | description                                                         |
+|-------------|---------------|----------|---------------------------------------------------------------------|
+| actions     | array(Action) | true     |                                                                     |
+| description | string        | false    | describe this `action`                                              |
+| exception   | string        | false    | this `text` will appear in the `error` message when an error occurs |
 
 ### Action: AttributeAction
 
-| field       | type                        | required | description |
-|-------------|-----------------------------|----------|-------------|
-| attr        | [Variable](#variable)       | true     |             |
-| description | string                      | false    |             |
-| error       | [ActionError](#actionerror) | false    |             |
+| field       | type                  | required | description                                                         |
+|-------------|-----------------------|----------|---------------------------------------------------------------------|
+| attr        | [Variable](#variable) | true     |                                                                     |
+| description | string                | false    | describe this `action`                                              |
+| exception   | string                | false    | this `text` will appear in the `error` message when an error occurs |
 
 ### Action: ChooseAction
 
-| field       | type                        | required | description |
-|-------------|-----------------------------|----------|-------------|
-| keys        | array(string)               | true     |             |
-| values      | array(string)               | true     |             |
-| description | string                      | false    |             |
-| error       | [ActionError](#actionerror) | false    |             |
+| field       | type          | required | description                                                         |
+|-------------|---------------|----------|---------------------------------------------------------------------|
+| keys        | array(string) | true     |                                                                     |
+| values      | array(string) | true     |                                                                     |
+| description | string        | false    | describe this `action`                                              |
+| exception   | string        | false    | this `text` will appear in the `error` message when an error occurs |
 
 ### Action: FuncAction
 
-| field       | type                        | required | description |
-|-------------|-----------------------------|----------|-------------|
-| lang        | string                      | true     |             |
-| value       | string                      | true     |             |
-| description | string                      | false    |             |
-| error       | [ActionError](#actionerror) | false    |             |
+| field       | type   | required | description                                                         |
+|-------------|--------|----------|---------------------------------------------------------------------|
+| lang        | string | true     |                                                                     |
+| value       | string | true     |                                                                     |
+| description | string | false    | describe this `action`                                              |
+| exception   | string | false    | this `text` will appear in the `error` message when an error occurs |
 
 ### Action: RegexAction
 
-| field       | type                        | required | description |
-|-------------|-----------------------------|----------|-------------|
-| regex       | [Variable](#variable)       | true     |             |
-| group       | number                      | true     |             |
-| description | string                      | false    |             |
-| error       | [ActionError](#actionerror) | false    |             |
+| field       | type                  | required | description                                                         |
+|-------------|-----------------------|----------|---------------------------------------------------------------------|
+| regex       | [Variable](#variable) | true     |                                                                     |
+| group       | number                | true     |                                                                     |
+| description | string                | false    | describe this `action`                                              |
+| exception   | string                | false    | this `text` will appear in the `error` message when an error occurs |
 
 ### Action: SelectAction
 
-| field       | type                        | required | description |
-|-------------|-----------------------------|----------|-------------|
-| selector    | [Variable](#variable)       | true     |             |
-| description | string                      | false    |             |
-| error       | [ActionError](#actionerror) | false    |             |
+| field       | type                  | required | description                                                            |
+|-------------|-----------------------|----------|------------------------------------------------------------------------|
+| selector    | [Variable](#variable) | true     | css selector  [more](https://developer.mozilla.org/en-US/docs/Web/CSS) |
+| description | string                | false    | describe this `action`                                                 |
+| exception   | string                | false    | this `text` will appear in the `error` message when an error occurs    |
 
 ### Action: StrAction
 
-| field       | type                        | required | description |
-|-------------|-----------------------------|----------|-------------|
-| description | string                      | false    |             |
-| error       | [ActionError](#actionerror) | false    |             |
+| field       | type   | required | description                                                         |
+|-------------|--------|----------|---------------------------------------------------------------------|
+| description | string | false    | describe this `action`                                              |
+| exception   | string | false    | this `text` will appear in the `error` message when an error occurs |
 
 ### Variable
 
