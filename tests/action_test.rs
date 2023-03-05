@@ -103,7 +103,7 @@ fn parse_choose_action_test() {
     assert_eq!(res.is_ok(), true);
 }
 
-// FuncAction test
+// CallbackAction test
 
 #[test]
 fn parse_func_action_test() {}

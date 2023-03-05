@@ -1,7 +1,7 @@
 mod regex_action;
 mod str_action;
 mod choose_action;
-mod func_action;
+mod callback_action;
 mod attribute_action;
 mod select_action;
 mod any_of_action;
@@ -10,7 +10,7 @@ pub use {
     any_of_action::AnyOfAction,
     attribute_action::AttributeAction,
     choose_action::ChooseAction,
-    func_action::FuncAction,
+    callback_action::{CallbackAction, Callback, CALLBACK},
     regex_action::RegexAction,
     select_action::SelectAction,
     str_action::StrAction,
@@ -24,7 +24,7 @@ pub enum Action {
     AnyOf(AnyOfAction),
     Attribute(AttributeAction),
     Choose(ChooseAction),
-    Func(FuncAction),
+    Callback(CallbackAction),
     Regex(RegexAction),
     Select(SelectAction),
     Str(StrAction),
@@ -36,7 +36,7 @@ impl Action {
             Action::AnyOf(a) => a.act(s),
             Action::Attribute(a) => a.act(s),
             Action::Choose(a) => a.act(s),
-            Action::Func(a) => a.act(s),
+            Action::Callback(a) => a.act(s),
             Action::Regex(a) => a.act(s),
             Action::Select(a) => a.act(s),
             Action::Str(a) => a.act(s),
@@ -48,8 +48,8 @@ impl Action {
 pub enum ActionErrorKind {
     AnyActionAllActionFail,
     AttributeNotFound,
+    MissingCallbackFunction,
     PatternNotCovered,
-    RunFunctionFail,
     RegexNotMatch,
     ElementNotFound,
     StrEmpty,

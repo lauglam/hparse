@@ -59,7 +59,7 @@ description: the description of choose action
 exception: the value entered has no matching options
 ```
 
-### Example: create [FuncAction](#action--funcaction)
+### Example: create [CallbackAction](#action--callbackaction)
 
 :construction: coming soon!
 
@@ -166,14 +166,12 @@ exception: All Actions have no return value
 | description | string        | false    | describe this `action`                                              |
 | exception   | string        | false    | this `text` will appear in the `error` message when an error occurs |
 
-### Action: FuncAction
+### Action: CallbackAction
 
-| field       | type   | required | description                                                         |
-|-------------|--------|----------|---------------------------------------------------------------------|
-| lang        | string | true     |                                                                     |
-| value       | string | true     |                                                                     |
-| description | string | false    | describe this `action`                                              |
-| exception   | string | false    | this `text` will appear in the `error` message when an error occurs |
+| field       | type   | required | description            |
+|-------------|--------|----------|------------------------|
+| tag         | string | true     |                        |
+| description | string | false    | describe this `action` |
 
 ### Action: RegexAction
 
@@ -213,7 +211,7 @@ exception: All Actions have no return value
 | AnyOf     | [AnyOfAction](#action--anyofaction)         |             |
 | Attribute | [AttributeAction](#action--attributeaction) |             |
 | Choose    | [ChooseAction](#action--chooseaction)       |             |
-| Func      | [FuncAction](#action--funcaction)           |             |
+| Callback  | [CallbackAction](#action--callbackaction)   |             |
 | Regex     | [RegexAction](#action--regexaction)         |             |
 | Select    | [SelectAction](#action--selectaction)       |             |
 | Str       | [StrAction](#action--straction)             |             |
@@ -227,15 +225,15 @@ exception: All Actions have no return value
 
 ### ActionErrorKind
 
-| kind                   | description                                                    |
-|------------------------|----------------------------------------------------------------|
-| AnyActionAllActionFail | the error kind for [AnyOfAction](#action--anyofaction)         |
-| AttributeNotFound      | the error kind for [AttributeAction](#action--attributeaction) |
-| PatternNotCovered      | the error kind for [ChooseAction](#action--chooseaction)       |
-| RunFunctionFail        | the error kind for [FuncAction](#action--funcaction)           |
-| RegexNotMatch          | the error kind for [RegexAction](#action--regexaction)         |
-| ElementNotFound        | the error kind for [SelectAction](#action--selectaction)       |
-| StrEmpty               | the error kind for [StrAction](#action--straction)             |
+| kind                    | description                                                    |
+|-------------------------|----------------------------------------------------------------|
+| AnyActionAllActionFail  | the error kind for [AnyOfAction](#action--anyofaction)         |
+| AttributeNotFound       | the error kind for [AttributeAction](#action--attributeaction) |
+| MissingCallbackFunction | the error kind for [CallbackAction](#action--callbackaction)   |
+| PatternNotCovered       | the error kind for [ChooseAction](#action--chooseaction)       |
+| RegexNotMatch           | the error kind for [RegexAction](#action--regexaction)         |
+| ElementNotFound         | the error kind for [SelectAction](#action--selectaction)       |
+| StrEmpty                | the error kind for [StrAction](#action--straction)             |
 
 ## Dependencies
 

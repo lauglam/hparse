@@ -174,36 +174,8 @@ properties:
           2. Extended|Thumbnail:`.ir`"
       - !Attribute
         attr: !Single style
-      - !Func
-        lang: rust
-        exception: '运行方法失败'
-        code: |-
-          const PATTERN_RATING: &str = r#"\d+px"#;
-          
-          let reg = Regex::new(PATTERN_RATING).unwrap();
-          let mut n1 = i32::MIN;
-          let mut n2 = i32::MIN;
-          
-          let mut value = 5 as f32;
-          let mut ms = reg.find_iter(s);
-          if let Some(m) = ms.next() {
-              n1 = m.as_str().replace("px", "").parse::<i32>()?;
-          }
-          
-          if let Some(m) = ms.next() {
-              n2 = m.as_str().replace("px", "").parse::<i32>()?;
-          }
-          
-          if n1 != i32::MIN && n2 != i32::MIN {
-              value -= (n1 / 16) as f32;
-              if n2 == 21 {
-                  value -= 0.5 as f32;
-              }
-          
-              Ok(Rate { value })
-          } else {
-              Err(REGEX_MATCH_FAILED)
-          }
+      - !Callback
+        tag: rate
   - kind: String
     name: pages
     description: 画廊的页数
