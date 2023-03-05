@@ -177,7 +177,7 @@ properties:
       - !Func
         lang: rust
         exception: '运行方法失败'
-        value: |-
+        code: |-
           const PATTERN_RATING: &str = r#"\d+px"#;
           
           let reg = Regex::new(PATTERN_RATING).unwrap();

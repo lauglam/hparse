@@ -253,7 +253,7 @@
         {
           "lang": "rust",
           "exception": "运行方法失败",
-          "value": "const PATTERN_RATING: &str = r#\"\\d+px\"#;\n\nlet reg = Regex::new(PATTERN_RATING).unwrap();\nlet mut n1 = i32::MIN;\nlet mut n2 = i32::MIN;\n\nlet mut value = 5 as f32;\nlet mut ms = reg.find_iter(s);\nif let Some(m) = ms.next() {\n    n1 = m.as_str().replace(\"px\", \"\").parse::<i32>()?;\n}\n\nif let Some(m) = ms.next() {\n    n2 = m.as_str().replace(\"px\", \"\").parse::<i32>()?;\n}\n\nif n1 != i32::MIN && n2 != i32::MIN {\n    value -= (n1 / 16) as f32;\n    if n2 == 21 {\n        value -= 0.5 as f32;\n    }\n\n    Ok(Rate { value })\n} else {\n    Err(REGEX_MATCH_FAILED)\n}"
+          "code": "const PATTERN_RATING: &str = r#\"\\d+px\"#;\n\nlet reg = Regex::new(PATTERN_RATING).unwrap();\nlet mut n1 = i32::MIN;\nlet mut n2 = i32::MIN;\n\nlet mut value = 5 as f32;\nlet mut ms = reg.find_iter(s);\nif let Some(m) = ms.next() {\n    n1 = m.as_str().replace(\"px\", \"\").parse::<i32>()?;\n}\n\nif let Some(m) = ms.next() {\n    n2 = m.as_str().replace(\"px\", \"\").parse::<i32>()?;\n}\n\nif n1 != i32::MIN && n2 != i32::MIN {\n    value -= (n1 / 16) as f32;\n    if n2 == 21 {\n        value -= 0.5 as f32;\n    }\n\n    Ok(Rate { value })\n} else {\n    Err(REGEX_MATCH_FAILED)\n}"
         }
       ]
     },
