@@ -12,7 +12,7 @@ A library for parsing `HTML` by writing yaml `parse_file`.
 
 ### Example: create [AttributeAction](#action--attributeaction)
 
-Since `attr` has two [kind](#variable), you need to indicate(`!Single`or`!AnyOf`) its [kind](#variable).
+Since `attr` has two [variant](#variable), you need to indicate(`!Single`or`!AnyOf`) its [variant](#variable).
 
 ```yaml
 attr: !Single href
@@ -65,7 +65,7 @@ exception: the value entered has no matching options
 
 ### Example: create [RegexAction](#action--regexaction)
 
-Since `regex` has two [kind](#variable), you need to indicate(`!Single`or`!AnyOf`) its [kind](#variable).
+Since `regex` has two [variant](#variable), you need to indicate(`!Single`or`!AnyOf`) its [variant](#variable).
 
 ```yaml
 regex: !Single https?://(?:exhentai.org|e-hentai.org|lofi.e-hentai.org)/(?:g|mpv)/(\d+)/([0-9a-f]{10})
@@ -87,7 +87,7 @@ exception: 'field: 'gid' error in regular expression matching'
 
 ### Example: create [SelectAction](#action--selectaction)
 
-Since `selector` has two [kind](#variable), you need to indicate(`!Single`or`!AnyOf`) its [kind](#variable).
+Since `selector` has two [variant](#variable), you need to indicate(`!Single`or`!AnyOf`) its [variant](#variable).
 
 ```yaml
 selector: !Single img
@@ -114,9 +114,9 @@ exception: string empty
 
 ### Example: create [AnyOfAction](#action--anyofaction)
 
-Because `actions` contain different action, you need to indicate the [kind](#action) of action.
+Because `actions` contain different action, you need to indicate the [variant](#action) of action.
 
-Since `regex` also has two [kind](#variable), you need to indicate its [kind](#variable) as well.
+Since `regex` also has two [variant](#variable), you need to indicate its [variant](#variable) as well.
 
 ```yaml
 actions:
