@@ -10,23 +10,16 @@ pub struct AttributeAction {
 }
 
 impl AttributeAction {
-    pub fn new(
-        attr: Variable<String>,
-        description: Option<String>,
-        exception: Option<String>,
-    ) -> AttributeAction {
-        AttributeAction { attr, description, exception }
-    }
-
-    pub fn act(&self, s: &str) -> ActionResult<String> {
+    pub fn execute(&self, s: &str) -> ActionResult<String> {
         let r = Vis::load(s).unwrap();
+        let r = r.children("");
 
         self.attr.using(
             &mut |s| {
                 if let Some(attr) = r.attr(s) {
                     Ok(attr.to_string())
                 } else {
-                    Err(ActionError::new(ActionErrorKind::AttributeNotFound, self.exception.clone()))
+                    Err(ActionError(ActionErrorKind::AttributeNotFound, self.exception.clone()))
                 }
             },
             &mut |a| {
@@ -36,7 +29,7 @@ impl AttributeAction {
                     }
                 }
 
-                Err(ActionError::new(ActionErrorKind::AttributeNotFound, self.exception.clone()))
+                Err(ActionError(ActionErrorKind::AttributeNotFound, self.exception.clone()))
             },
         )
     }

@@ -1,7 +1,6 @@
-use std::sync::Mutex;
-use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
-use crate::actions::{ActionError, ActionErrorKind, ActionResult};
+use serde_json::Value;
+use crate::{actions::{ActionError, ActionErrorKind, ActionResult, CALLBACK}};
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct CallbackAction {
@@ -10,23 +9,13 @@ pub struct CallbackAction {
 }
 
 impl CallbackAction {
-    pub fn new(
-        tag: String,
-        description: Option<String>,
-    ) -> CallbackAction {
-        CallbackAction { tag, description }
-    }
-
-    pub fn act(&self, s: &str) -> ActionResult<String> {
-        match CALLBACK.lock().unwrap().as_ref() {
-            Some(call) => Ok(String::from(&call(self.tag.clone(), String::from(s)))),
-            None => Err(ActionError::new(ActionErrorKind::MissingCallbackFunction, None)),
+    pub fn execute(&self, s: &str, value: &Value) -> ActionResult<String> {
+        match CALLBACK.get().unwrap() {
+            Some(callback) => {
+                let mut callback = callback.lock().unwrap();
+                Ok(String::from(callback(self.tag.clone(), s, value)?))
+            }
+            None => Err(ActionError(ActionErrorKind::MissingCallbackFunction, None)),
         }
     }
 }
-
-lazy_static! {
-    pub static ref CALLBACK: Mutex<Option<Callback>> = Mutex::new(None);
-}
-
-pub type Callback = Box<dyn FnMut(String, String) -> String + Sync + Send>;

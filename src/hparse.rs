@@ -1,5 +1,7 @@
-use crate::{ParseError, ParseResult, actions::{Action, Callback}};
-use crate::actions::CALLBACK;
+use std::cell::RefMut;
+use std::sync::Mutex;
+use serde_json::{Map, Value};
+use crate::{ParseError, ParseResult, actions::{Action, Callback, CALLBACK}};
 
 pub struct HParse {
     cfg: ParseFile,
@@ -11,14 +13,9 @@ impl HParse {
         Ok(HParse { cfg })
     }
 
-    pub fn json(&self, html: &str, callback: Option<Callback>) -> ParseResult<String> {
-        if let Some(callback) = callback {
-            // set callback to `CallbackAction`
-            let mut guard = CALLBACK.lock().unwrap();
-            guard.replace(callback);
-        }
-
-        self.cfg.json(html, None)
+    pub fn json(&self, html: &str, callback: Option<Callback>) -> ParseResult<Value> {
+        _ = CALLBACK.set(callback.map(|f| Mutex::new(f)));
+        self.cfg.json(html)
     }
 }
 
@@ -38,119 +35,80 @@ pub struct ParseFile {
     actions: Option<Vec<Action>>,
     // `None` if kind is string or number
     properties: Box<Option<Vec<ParseFile>>>,
-    // default `false`
-    use_parent: Option<bool>,
-    // default `false`
-    nullable: Option<bool>,
-
     description: Option<String>,
+    // default `false`
+    #[serde(default)]
+    nullable: bool,
 }
 
 impl ParseFile {
-    pub fn new(
-        kind: ParseKind,
-        name: String,
-        actions: Option<Vec<Action>>,
-        properties: Option<Vec<ParseFile>>,
-        use_parent: Option<bool>,
-        nullable: Option<bool>,
-        description: Option<String>,
-    ) -> ParseFile {
-        let properties = Box::new(properties);
+    pub fn json(&self, s: &str) -> ParseResult<Value> {
+        let mut res = self.new_value();
 
-        ParseFile {
-            kind,
-            name,
-            actions,
-            properties,
-            use_parent,
-            nullable,
+        let pre = self.actions(s, &mut res);
 
-            description,
-        }
-    }
-
-    pub fn json(&self, s: &str, parent: Option<&str>) -> ParseResult<String> {
-        let pre_process = self.use_actions(self.use_parent(s, parent));
-
-        if self.nullable.is_some_and(|b| b && pre_process.is_err()) {
-            // `nullable` is `true`
-            return Ok(String::new());
+        // Nullable is `true` and error occurs
+        if self.nullable && pre.is_err() {
+            return Ok(Value::Null);
         }
 
+        // Boolean
         if self.kind == ParseKind::Boolean {
             // `kind` is `Boolean`
-            return Ok(format!(r#""{}":"{}""#, self.name, pre_process.is_ok()));
+            return Ok(Value::Bool(pre.is_ok()));
         }
 
-        let pre_process = pre_process?;
+        let pre = pre?;
 
+        // String
         if self.kind == ParseKind::String {
-            return Ok(format!(r#""{}":"{}""#, self.name, pre_process));
+            return Ok(Value::String(pre));
         }
 
         match self.properties.as_ref() {
             Some(props) => {
-                let mut res = Vec::new();
                 for prop in props {
-                    res.push(prop.json(s, parent)?);
+                    let value = prop.json(&pre)?;
+                    self.insert(&mut res, prop.name.clone(), value);
                 }
 
-                let res = res.join(",");
-
-                // root:
-                // {
-                //   "gid": "xxx",
-                //   "token": "xxx",
-                //  }
-                //
-                // not root:
-                // "category": {
-                //               "gid": "xxx",
-                //               "token": "xxx",
-                //             }
-                let is_root = parent.is_none();
-                match self.kind {
-                    ParseKind::Object => Ok(
-                        if is_root {
-                            format!(r"{{{}}}", res)
-                        } else {
-                            format!(r#""{}":{{{}}}"#, self.name, res)
-                        }
-                    ),
-                    ParseKind::Array => Ok(
-                        if is_root {
-                            format!("[{}]", res)
-                        } else {
-                            format!(r#""{}":[{}]"#, self.name, res)
-                        }
-                    ),
-                    _ => unreachable!(),
-                }
+                Ok(res)
             }
             // kind not `string`, but `properties` is `None`
             None => Err(ParseError::MissingProperties),
         }
     }
 
-    fn use_actions(&self, s: &str) -> ParseResult<String> {
+    fn actions(&self, s: &str, value: &Value) -> ParseResult<String> {
         let mut res = String::from(s);
-
         if let Some(ref actions) = self.actions {
             for action in actions {
-                res = action.act(&res)?;
+                res = action.execute(&res, value)?;
             }
         }
-
         Ok(res)
     }
 
-    fn use_parent<'a>(&'a self, s: &'a str, parent: Option<&'a str>) -> &'a str {
-        if self.use_parent.is_some_and(|b| b) {
-            if let Some(p) = parent {
-                return p;
+    fn insert(&self, res: &mut Value, key: String, value: Value) {
+        match self.kind {
+            ParseKind::Object => {
+                let s = res.as_object_mut().unwrap();
+                s.insert(key, value);
             }
+            ParseKind::Array => {
+                let s = res.as_array_mut().unwrap();
+                s.push(value);
+            }
+            _ => unreachable!(),
         }
-        s
+    }
+
+    fn new_value(&self) -> Value {
+        match self.kind {
+            ParseKind::Object => Value::Object(Map::new()),
+            ParseKind::Array => Value::Array(Vec::new()),
+            ParseKind::String => Value::String(String::new()),
+            ParseKind::Boolean => Value::Bool(false),
+        }
     }
 }

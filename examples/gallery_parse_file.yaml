@@ -1,5 +1,5 @@
 ---
-kind: Object
+type: Object
 name: gallery
 description: 画廊对象解析配置文件
 properties:
@@ -10,7 +10,7 @@ properties:
       - !Select
         selector: !AnyOf
           - ".glname a"
-          - ".gl2e a"
+          - ".gl2e > div > a"
         description: |
           1. Minimal|MinimalPlus|Compact|Thumbnail: `.glname a`
           2. Extended: `.gl2e a`

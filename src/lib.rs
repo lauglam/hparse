@@ -1,14 +1,13 @@
-#![feature(is_some_and)]
-
 mod actions;
 mod hparse;
 
-pub use hparse::HParse;
+pub use hparse::{HParse, ParseFile};
 
 use crate::actions::ActionError;
 
 pub type ParseResult<T> = Result<T, ParseError>;
 
+#[derive(Debug)]
 pub enum ParseError {
     MissingProperties,
     ParseParseFileFail(serde_yaml::Error),

@@ -11,28 +11,19 @@ pub struct RegexAction {
 }
 
 impl RegexAction {
-    pub fn new(
-        regex: Variable<String>,
-        group: usize,
-        description: Option<String>,
-        exception: Option<String>,
-    ) -> RegexAction {
-        RegexAction { regex, group, description, exception }
-    }
-
-    pub fn act(&self, s: &str) -> ActionResult<String> {
-        self.regex.using(
-            &mut |reg| {
+    pub fn execute(&self, s: &str) -> ActionResult<String> {
+        match self.regex {
+            Variable::Single(ref reg) => {
                 let r = Regex::new(reg).unwrap();
 
                 if let Some(cap) = r.captures(s) {
                     Ok(String::from(&cap[self.group]))
                 } else {
-                    Err(ActionError::new(ActionErrorKind::RegexNotMatch, self.exception.clone()))
+                    Err(ActionError(ActionErrorKind::RegexNotMatch, self.exception.clone()))
                 }
-            },
-            &mut |a| {
-                for reg in a {
+            }
+            Variable::AnyOf(ref regs) => {
+                for reg in regs {
                     let r = Regex::new(reg).unwrap();
 
                     if let Some(cap) = r.captures(s) {
@@ -40,8 +31,8 @@ impl RegexAction {
                     }
                 }
 
-                Err(ActionError::new(ActionErrorKind::RegexNotMatch, self.exception.clone()))
-            },
-        )
+                Err(ActionError(ActionErrorKind::RegexNotMatch, self.exception.clone()))
+            }
+        }
     }
 }

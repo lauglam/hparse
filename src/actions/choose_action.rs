@@ -10,22 +10,13 @@ pub struct ChooseAction {
 }
 
 impl ChooseAction {
-    pub fn new(
-        keys: Vec<String>,
-        values: Vec<String>,
-        description: Option<String>,
-        exception: Option<String>,
-    ) -> ChooseAction {
-        ChooseAction { keys, values, description, exception }
-    }
-
-    pub fn act(&self, k: &str) -> ActionResult<String> {
+    pub fn execute(&self, k: &str) -> ActionResult<String> {
         let idx = self.keys.iter().position(|s| s == k);
 
         if let Some(idx) = idx {
             Ok(self.values[idx].clone())
         } else {
-            Err(ActionError::new(ActionErrorKind::PatternNotCovered, self.exception.clone()))
+            Err(ActionError(ActionErrorKind::PatternNotCovered, self.exception.clone()))
         }
     }
 }

@@ -10,23 +10,16 @@ pub struct SelectAction {
 }
 
 impl SelectAction {
-    pub fn new(
-        selector: Variable<String>,
-        description: Option<String>,
-        exception: Option<String>,
-    ) -> SelectAction {
-        SelectAction { selector, description, exception }
-    }
-
-    pub fn act(&self, s: &str) -> ActionResult<String> {
+    pub fn execute(&self, s: &str) -> ActionResult<String> {
         let r = Vis::load(s).unwrap();
+        let r = r.children("");
 
         self.selector.using(
             &mut |s| {
                 let h = r.find(s).outer_html();
 
                 match h.is_empty() {
-                    true => Err(ActionError::new(
+                    true => Err(ActionError(
                         ActionErrorKind::ElementNotFound,
                         self.exception.clone(),
                     )),
@@ -41,7 +34,7 @@ impl SelectAction {
                     }
                 }
 
-                Err(ActionError::new(ActionErrorKind::ElementNotFound, self.exception.clone()))
+                Err(ActionError(ActionErrorKind::ElementNotFound, self.exception.clone()))
             },
         )
     }

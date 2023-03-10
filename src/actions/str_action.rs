@@ -9,19 +9,13 @@ pub struct StrAction {
 }
 
 impl StrAction {
-    pub fn new(
-        description: Option<String>,
-        exception: Option<String>,
-    ) -> StrAction {
-        StrAction { description, exception }
-    }
-
-    pub fn act(&self, s: &str) -> ActionResult<String> {
+    pub fn execute(&self, s: &str) -> ActionResult<String> {
         let r = Vis::load(s).unwrap();
+        let r = r.children("");
         let t = r.text();
 
         match t.is_empty() {
-            true => Err(ActionError::new(
+            true => Err(ActionError(
                 ActionErrorKind::StrEmpty,
                 self.exception.clone(),
             )),
